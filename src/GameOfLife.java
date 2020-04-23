@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.util.*;
 
 public class GameOfLife {
@@ -14,12 +15,15 @@ public class GameOfLife {
     boolean[][] lifeGeneration = new boolean[LIFE_SIZE][LIFE_SIZE];
     boolean[][] nextGeneration = new boolean[LIFE_SIZE][LIFE_SIZE];
     volatile boolean goNextGeneration = true; // fixed the problem in 64-bit JVM
-    int showDelay = 500;
+    int showDelay = 100;
     JFrame frame;
     Canvas canvasPanel;
     Random random = new Random();
     int countGeneration = 0;
     int alive = 0;
+
+    //flag show/hide grid
+    boolean showGrid = false;
 
     JLabel lblAlive;
     JLabel lblGeneration;
@@ -58,14 +62,26 @@ public class GameOfLife {
             }
         });
 
+        JButton gridButton = new JButton("|||");
+
+        gridButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showGrid = !showGrid;
+                canvasPanel.repaint();
+            }
+        });
+
         JPanel btnPanel = new JPanel();
 
-
-        btnPanel.add(fillButton);
-        btnPanel.add(stepButton);
-        btnPanel.add(goButton);
-        btnPanel.add(lblGeneration);
-        btnPanel.add(lblAlive);
+//
+//        btnPanel.add(fillButton);
+//        btnPanel.add(stepButton);
+//        btnPanel.add(goButton);
+//        btnPanel.add(gridButton);
+        btnPanel.setLayout(new BorderLayout());
+        btnPanel.add(lblGeneration, BorderLayout.NORTH);
+        btnPanel.add(lblAlive, BorderLayout.SOUTH);
 
         frame.getContentPane().add(BorderLayout.CENTER, canvasPanel);
         frame.getContentPane().add(BorderLayout.NORTH, btnPanel);
@@ -165,10 +181,18 @@ public class GameOfLife {
             for (int x = 0; x < LIFE_SIZE; x++) {
                 for (int y = 0; y < LIFE_SIZE; y++) {
                     if (lifeGeneration[x][y]) {
-                        g.fillOval(x*POINT_RADIUS, y*POINT_RADIUS, POINT_RADIUS, POINT_RADIUS);
+                        g.fillRect(x*POINT_RADIUS, y*POINT_RADIUS, POINT_RADIUS, POINT_RADIUS);
                         alive++;
                     }
+
+                    if (showGrid) {
+                        //g.setColor(Color.lightGray);
+                        g.drawLine((x+1)*POINT_RADIUS-1, (y+1)*POINT_RADIUS, (x+1)*POINT_RADIUS+1, (y+1)*POINT_RADIUS);
+                        g.drawLine((x+1)*POINT_RADIUS, (y+1)*POINT_RADIUS-1, (x+1)*POINT_RADIUS, (y+1)*POINT_RADIUS+1);
+                    }
                 }
+
+
             }
             frame.setTitle(NAME_OF_GAME + " : " + countGeneration);
             lblAlive.setText("Alive: " + alive);
